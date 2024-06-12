@@ -13,7 +13,7 @@ const Login = ({ setUser }) => {
     const navigate = useNavigate()
     
     const handleSubmit = (event) => {
-        event.preventDefault()
+        event.preventDefault();
         fetch("http://localhost:8080/api/user/login", {
             method: "POST",
             headers: {
@@ -24,20 +24,22 @@ const Login = ({ setUser }) => {
         })
         .then(response => {
             if (response.status === 200) {
-                response.json()
-                .then(json => setUser(json))
-                navigate("/")
+                response.json().then(json => {
+                    setUser(json);
+                    // Save user data to local storage
+                    localStorage.setItem('user', JSON.stringify(json));
+                    navigate("/");
+                });
             } else if (response.status === 404 || response.status === 403) {
-                response.json()
-                .then(json => setErrors(json))
+                response.json().then(json => setErrors([json.message]));
             } else {
-                return Promise.reject()
+                return Promise.reject();
             }
         })
         .catch(error => {
-            setErrors(["Something went wrong"])
-        })
-    }
+            setErrors(["Something went wrong"]);
+        });
+    };
 
     return (
         <div>
