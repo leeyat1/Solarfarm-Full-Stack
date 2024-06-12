@@ -1,0 +1,41 @@
+- create user:
+    - db: users table w/ just username
+    - backend: user model, repo, repo test, service, service test, controller, controller test; all only need create method
+    - frontend: signup form, nav link to signup form
+- login:
+    - db: add password to users table
+    - backend: repo needs findByUsername, service needs findByUsername, controller needs POST /login (returns user or 403)
+    - frontend: login form, nav link to login form, show error messages on error, console.log(user) on success
+- reflect logged in state in frontend:
+    - on successful login, navigate("/")
+    - save user in state: must live in App so it can flow down to list and form
+    - show welcome message in header if logged in
+    - if logged in show logOut link, if logged out show sign up & log in links
+    - no Redirects or protected routes yet 
+- make panels belong to user
+    - db: add user_id to solar_panel, modify initial data
+    - backend: add userId field to SolarPanel model, modify solarPanelRepo sql and mapper
+- myPanels
+    - backend: panel repo & service & controller need findByUserId
+        - controller uses Authorization header to get userId, 403 if not present
+    - frontend: logged-in-only link to MyPanels, uses List
+- add
+    - backend: modify repo-service-controller add methods to use userId
+        - controller uses Authorization header to get userId, 403 if not present
+    - frontend: only show Add link if logged in; include authorization header
+- update
+    - backend:
+        - controller uses Authorization header to get userId, 403 if not present
+        - controller checks to see if the panel for editing belongs to userId, 403 if not
+    - frontend: only show Edit link if logged in; include authorization header in request
+- delete
+    - backend:
+        - controller uses Authorization header to get userId, 403 if not present
+        - controller checks to see if the panel for deletion belongs to userId, 403 if not
+    - frontend: only show Delete link if logged in; include authorization header in request
+- protected routes on frontend
+    - add Redirect to element prop of Routes
+    - must be logged in:  MyPanels, Add, Update, Delete, Log Out
+    - must be logged out: Log In, Sign Up
+    - either: All Panels, Home
+- save user into localStorage & reload
