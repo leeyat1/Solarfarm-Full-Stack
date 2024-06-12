@@ -10,8 +10,13 @@ import ConfirmDelete from './pages/ConfirmDelete';
 import AllPanels from './pages/AllPanels';
 import Add from './pages/Add';
 import Edit from './pages/Edit';
+import Signup from './pages/Signup';
+import Login from './pages/Login';
+import MyPanels from './pages/MyPanels';
 
 function App() {
+	const [user, setUser] = useState(null)
+
 	return (
 		<BrowserRouter>
 			<div className='container'>
@@ -21,19 +26,23 @@ function App() {
 							<a className='navbar-brand' href='/'>
 								<img src={logo} alt='Solar Farm' width='150' />
 							</a>
-							<NavBar />
+							<NavBar setUser={setUser} user={user} />
 						</div>
 					</nav>
 				</header>
 				<main>
 					<h1 className='mb-3'>Solar Panels</h1>
+					{ user !== null ? <h2>Welcome, {user.username}!</h2> : null }
 					<Routes>
 						<Route path="/" element={<Home />} />
 						<Route path="/contact" element={<Contact />} />
-						<Route path="/allPanels" element={<AllPanels />} />
-						<Route path="/add" element={<Add />} />
-						<Route path="/edit/:id" element={<Edit />} />				
-						<Route path="/delete/:id" element={<ConfirmDelete />} />												
+						<Route path="/allPanels" element={<AllPanels user={user} />} />
+						<Route path="/personal" element={<MyPanels user={user} />} />
+						<Route path="/add" element={<Add user={user} />} />
+						<Route path="/edit/:id" element={<Edit user={user} />} />				
+						<Route path="/delete/:id" element={<ConfirmDelete user={user} />} />
+						<Route path="/signup" element={<Signup />} />
+						<Route path="/login" element={<Login setUser={setUser} />} />
 						<Route path="*" element={<div>Page not found, 404</div>} />
 					</Routes>
 				</main>

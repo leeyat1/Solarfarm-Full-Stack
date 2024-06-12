@@ -11,6 +11,8 @@ public interface SolarPanelRepository {
 
     SolarPanel findById(int id) throws DataAccessException;
 
+    List<SolarPanel> findByUserId(int userId) throws DataAccessException;
+
     SolarPanel create(SolarPanel solarPanel) throws DataAccessException;
 
     boolean update(SolarPanel solarPanel) throws DataAccessException;

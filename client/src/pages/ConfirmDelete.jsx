@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 
-const ConfirmDelete = () => {
+const ConfirmDelete = ({ user }) => {
     const params = useParams()
     const id = params.id
 
@@ -16,7 +16,12 @@ const ConfirmDelete = () => {
     }, [])
 
     const handleDelete = () => {
-        fetch(`http://localhost:8080/api/solarpanel/${id}`, { method: "DELETE" })
+        fetch(`http://localhost:8080/api/solarpanel/${id}`, {
+            method: "DELETE",
+            headers: {
+                Authorization: user.id
+            }
+        })
         .then(response => {
             if (response.status === 204) {
                 navigate("/allPanels")

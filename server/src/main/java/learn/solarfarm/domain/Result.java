@@ -1,13 +1,12 @@
 package learn.solarfarm.domain;
 
-import learn.solarfarm.models.SolarPanel;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class SolarPanelResult {
+public class Result <T> {
     private final ArrayList<String> messages = new ArrayList<>();
-    private SolarPanel solarPanel;
+    private T payload;
     private ResultType resultType = ResultType.SUCCESS;
 
     public List<String> getErrorMessages() {
@@ -32,11 +31,24 @@ public class SolarPanelResult {
         return this.resultType;
     }
 
-    public SolarPanel getSolarPanel() {
-        return solarPanel;
+    public T getPayload() {
+        return payload;
     }
 
-    public void setSolarPanel(SolarPanel solarPanel) {
-        this.solarPanel = solarPanel;
+    public void setPayload(T payload) {
+        this.payload = payload;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        Result<?> result = (Result<?>) object;
+        return Objects.equals(messages, result.messages) && Objects.equals(payload, result.payload) && resultType == result.resultType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(messages, payload, resultType);
     }
 }

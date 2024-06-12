@@ -1,12 +1,30 @@
+import { Link } from "react-router-dom"
+
 import NavLink from "./NavLink"
 
-const NavBar = () => {
+const NavBar = ({ setUser, user }) => {
+    const logOutLink = <li className='nav-item'>
+        <span className='nav-link' onClick={() => setUser(null)}>
+            Log Out
+        </span>
+    </li>
+
     return (
         <ul className='navbar-nav'>
+            {/* always visible */}
             <NavLink name="Home" to="/"/>
             <NavLink name="Contact" to="/contact"/>
             <NavLink name="All Panels" to="/allPanels"/>
-            <NavLink name="Add" to="/add" />
+            {/* TODO: refactor routes into /solarPanel/add and /user/add */}
+
+            {/* visible only when logged out */}
+            { user === null && <NavLink name="Sign Up" to="/signup" /> }
+            { user === null && <NavLink name="Log In" to="/login" /> }
+                        
+            {/* visible only when logged in */}
+            { user !== null && <NavLink name="Add" to="/add" /> }
+            { user !== null && <NavLink name="My Panels" to="/personal" /> }
+            { user !== null && logOutLink }
         </ul>
     )
 }

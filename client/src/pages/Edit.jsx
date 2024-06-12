@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import Errors from "../components/Errors"
 import SolarPanelForm from "../components/SolarPanelForm"
 
-const Edit = () => {
+const Edit = ({ user }) => {
     const navigate = useNavigate()
 
     // const params = useParams()
@@ -28,13 +28,15 @@ const Edit = () => {
             headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json",
+                Authorization: user.id,
             },
             body: JSON.stringify(solarPanel)
         })
         .then(response => {
             if (response.status === 204) {
                 navigate("/allPanels")
-            } else if (response.status === 400 || response.status === 404 || response.status === 409) {
+            // } else if (response.status === 400 || response.status === 404 || response.status === 409) {
+            } else if (response.status >= 400 && response.status < 499) {
                 // handle validation errors
                 response.json()
                 .then(json => {

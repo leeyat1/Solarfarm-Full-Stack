@@ -24,14 +24,15 @@ class SolarPanelJdbcTemplateRepositoryTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    static boolean hasSetup = false;
+//    static boolean hasSetup = false;
 
     @BeforeEach
     void setup() {
-        if (!hasSetup) {
-            hasSetup = true;
-            jdbcTemplate.update("call set_known_good_state();");
-        }
+        jdbcTemplate.update("call set_known_good_state();");
+//        if (!hasSetup) {
+//            hasSetup = true;
+//            jdbcTemplate.update("call set_known_good_state();");
+//        }
     }
 
     @Test
@@ -48,6 +49,7 @@ class SolarPanelJdbcTemplateRepositoryTest {
         solarPanel.setYearInstalled(2020);
         solarPanel.setMaterial(Material.POLY_SI);
         solarPanel.setTracking(true);
+        solarPanel.setUserId(1);
 
         assertTrue(result.contains(solarPanel));
     }
@@ -66,6 +68,13 @@ class SolarPanelJdbcTemplateRepositoryTest {
     }
 
     @Test
+    void shouldFindByUserId() throws DataAccessException {
+        List<SolarPanel> actual = repository.findByUserId(1);
+
+        assertEquals(3, actual.size());
+    }
+
+    @Test
     void shouldCreate() throws DataAccessException {
         SolarPanel solarPanel = new SolarPanel();
         solarPanel.setSection("East Hill");
@@ -74,6 +83,7 @@ class SolarPanelJdbcTemplateRepositoryTest {
         solarPanel.setYearInstalled(2000);
         solarPanel.setMaterial(Material.CIGS);
         solarPanel.setTracking(true);
+        solarPanel.setUserId(1);
 
         SolarPanel result = repository.create(solarPanel);
 
@@ -93,6 +103,7 @@ class SolarPanelJdbcTemplateRepositoryTest {
         solarPanel.setYearInstalled(2015);
         solarPanel.setMaterial(Material.POLY_SI);
         solarPanel.setTracking(false);
+        solarPanel.setUserId(2);
 
         assertTrue(repository.update(solarPanel));
         assertEquals(solarPanel, repository.findById(2));

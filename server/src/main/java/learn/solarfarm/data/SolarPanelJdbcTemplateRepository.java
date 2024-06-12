@@ -34,6 +34,7 @@ public class SolarPanelJdbcTemplateRepository implements SolarPanelRepository {
         solarPanel.setMaterial(material);
 
         solarPanel.setTracking(resultSet.getBoolean("is_tracking"));
+        solarPanel.setUserId(resultSet.getInt("user_id"));
 
         return solarPanel;
     };
@@ -41,7 +42,7 @@ public class SolarPanelJdbcTemplateRepository implements SolarPanelRepository {
     @Override
     public List<SolarPanel> findAll() throws DataAccessException {
 
-        final String sql = "select id, section, `row`, `column`, year_installed, material, is_tracking " +
+        final String sql = "select * " +
                 "from solar_panel " +
                 "order by section, `row`, `column`;";
 
@@ -59,7 +60,7 @@ public class SolarPanelJdbcTemplateRepository implements SolarPanelRepository {
 //                "where section = '%s' " +
 //                "order by section, `row`, `column`;", section);
 
-        final String sql = "select id, section, `row`, `column`, year_installed, material, is_tracking " +
+        final String sql = "select * " +
                 "from solar_panel " +
                 "where section = ? " +
                 "order by section, `row`, `column`;";
@@ -69,7 +70,7 @@ public class SolarPanelJdbcTemplateRepository implements SolarPanelRepository {
 
     @Override
     public SolarPanel findById(int id) throws DataAccessException {
-        final String sql = "select id, section, `row`, `column`, year_installed, material, is_tracking " +
+        final String sql = "select * " +
                 "from solar_panel " +
                 "where id = ?";
 
@@ -84,10 +85,19 @@ public class SolarPanelJdbcTemplateRepository implements SolarPanelRepository {
     }
 
     @Override
+    public List<SolarPanel> findByUserId(int userId) throws DataAccessException {
+        final String sql = "select * " +
+                "from solar_panel " +
+                "where user_id = ?;";
+
+        return jdbcTemplate.query(sql, mapper, userId);
+    }
+
+    @Override
     public SolarPanel create(SolarPanel solarPanel) throws DataAccessException {
 
-        final String sql = "insert into solar_panel (section, `row`, `column`, year_installed, material, is_tracking) " +
-                "values (?, ?, ?, ?, ?, ?);";
+        final String sql = "insert into solar_panel (section, `row`, `column`, year_installed, material, is_tracking, user_id) " +
+                "values (?, ?, ?, ?, ?, ?, ?);";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         int rowsAffected = jdbcTemplate.update(connection -> {
@@ -98,6 +108,7 @@ public class SolarPanelJdbcTemplateRepository implements SolarPanelRepository {
             statement.setInt(4, solarPanel.getYearInstalled());
             statement.setString(5, solarPanel.getMaterial().toString());
             statement.setBoolean(6, solarPanel.isTracking());
+            statement.setInt(7, solarPanel.getUserId());
             return statement;
         }, keyHolder);
 

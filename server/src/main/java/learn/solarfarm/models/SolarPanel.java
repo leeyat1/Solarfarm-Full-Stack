@@ -10,11 +10,12 @@ public class SolarPanel {
     private int yearInstalled;
     private Material material;
     private boolean isTracking;
+    private int userId;
 
     public SolarPanel() {
     }
 
-    public SolarPanel(int id, String section, int row, int column, int yearInstalled, Material material, boolean isTracking) {
+    public SolarPanel(int id, String section, int row, int column, int yearInstalled, Material material, boolean isTracking, int userId) {
         this.id = id;
         this.section = section;
         this.row = row;
@@ -22,6 +23,7 @@ public class SolarPanel {
         this.yearInstalled = yearInstalled;
         this.material = material;
         this.isTracking = isTracking;
+        this.userId = userId;
     }
 
     public int getId() {
@@ -80,16 +82,24 @@ public class SolarPanel {
         isTracking = tracking;
     }
 
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        SolarPanel that = (SolarPanel) o;
-        return id == that.id && row == that.row && column == that.column && yearInstalled == that.yearInstalled && isTracking == that.isTracking && Objects.equals(section, that.section) && material == that.material;
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        SolarPanel that = (SolarPanel) object;
+        return id == that.id && row == that.row && column == that.column && yearInstalled == that.yearInstalled && isTracking == that.isTracking && userId == that.userId && Objects.equals(section, that.section) && material == that.material;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, section, row, column, yearInstalled, material, isTracking);
+        return Objects.hash(id, section, row, column, yearInstalled, material, isTracking, userId);
     }
 }

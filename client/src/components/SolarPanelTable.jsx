@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import SolarPanelRow from "./SolarPanelRow";
 
-const SolarPanelTable = ({ panels }) => {
+const SolarPanelTable = ({ panels, user }) => {
     return (
         <table className='table table-striped'>
             <thead>
@@ -18,7 +18,7 @@ const SolarPanelTable = ({ panels }) => {
             <tbody>
                 {panels && panels.map(solarPanel => (
                     <SolarPanelRow 
-                    key={solarPanel.id} solarPanel={solarPanel} />
+                    key={solarPanel.id} solarPanel={solarPanel} user={user} />
                 ))}
             </tbody>
         </table>

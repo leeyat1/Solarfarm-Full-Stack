@@ -33,8 +33,8 @@ class SolarPanelServiceTest {
     @Test
     void shouldFindTwoSolarPanelsForSectionOne() throws DataAccessException {
         when(repository.findBySection("Section One")).thenReturn(List.of(
-                new SolarPanel(1, "Section One", 1, 1, 2020, Material.POLY_SI, true),
-                new SolarPanel(2, "Section One", 1, 2, 2020, Material.POLY_SI, true)
+                new SolarPanel(1, "Section One", 1, 1, 2020, Material.POLY_SI, true, 1),
+                new SolarPanel(2, "Section One", 1, 2, 2020, Material.POLY_SI, true, 1)
         ));
 
         List<SolarPanel> solarPanels = service.findBySection("Section One");
@@ -55,7 +55,7 @@ class SolarPanelServiceTest {
         SolarPanel solarPanel = null;
 
         // Act
-        SolarPanelResult result = service.create(solarPanel);
+        Result<SolarPanel> result = service.create(solarPanel);
 
         // Assert
         assertFalse(result.isSuccess());
@@ -71,9 +71,10 @@ class SolarPanelServiceTest {
         solarPanel.setRow(1);
         solarPanel.setColumn(1);
         solarPanel.setMaterial(Material.POLY_SI);
+        solarPanel.setUserId(1);
 
         // Act
-        SolarPanelResult result = service.create(solarPanel);
+        Result<SolarPanel> result = service.create(solarPanel);
 
         // Assert
         assertFalse(result.isSuccess());
@@ -89,9 +90,10 @@ class SolarPanelServiceTest {
         solarPanel.setRow(1);
         solarPanel.setColumn(1);
         solarPanel.setMaterial(Material.POLY_SI);
+        solarPanel.setUserId(1);
 
         // Act
-        SolarPanelResult result = service.create(solarPanel);
+        Result<SolarPanel> result = service.create(solarPanel);
 
         // Assert
         assertFalse(result.isSuccess());
@@ -107,9 +109,10 @@ class SolarPanelServiceTest {
         solarPanel.setRow(1);
         solarPanel.setColumn(1);
         solarPanel.setYearInstalled(2000);
+        solarPanel.setUserId(1);
 
         // Act
-        SolarPanelResult result = service.create(solarPanel);
+        Result<SolarPanel> result = service.create(solarPanel);
 
         // Assert
         assertFalse(result.isSuccess());
@@ -125,9 +128,10 @@ class SolarPanelServiceTest {
         solarPanel.setRow(0);
         solarPanel.setColumn(1);
         solarPanel.setMaterial(Material.POLY_SI);
+        solarPanel.setUserId(1);
 
         // Act
-        SolarPanelResult result = service.create(solarPanel);
+        Result<SolarPanel> result = service.create(solarPanel);
 
         // Assert
         assertFalse(result.isSuccess());
@@ -143,9 +147,10 @@ class SolarPanelServiceTest {
         solarPanel.setRow(SolarPanelService.MAX_ROW_COLUMN + 1);
         solarPanel.setColumn(1);
         solarPanel.setMaterial(Material.POLY_SI);
+        solarPanel.setUserId(1);
 
         // Act
-        SolarPanelResult result = service.create(solarPanel);
+        Result<SolarPanel> result = service.create(solarPanel);
 
         // Assert
         assertFalse(result.isSuccess());
@@ -161,9 +166,10 @@ class SolarPanelServiceTest {
         solarPanel.setRow(1);
         solarPanel.setColumn(0);
         solarPanel.setMaterial(Material.POLY_SI);
+        solarPanel.setUserId(1);
 
         // Act
-        SolarPanelResult result = service.create(solarPanel);
+        Result<SolarPanel> result = service.create(solarPanel);
 
         // Assert
         assertFalse(result.isSuccess());
@@ -179,9 +185,10 @@ class SolarPanelServiceTest {
         solarPanel.setRow(1);
         solarPanel.setColumn(SolarPanelService.MAX_ROW_COLUMN + 1);
         solarPanel.setMaterial(Material.POLY_SI);
+        solarPanel.setUserId(1);
 
         // Act
-        SolarPanelResult result = service.create(solarPanel);
+        Result<SolarPanel> result = service.create(solarPanel);
 
         // Assert
         assertFalse(result.isSuccess());
@@ -198,15 +205,37 @@ class SolarPanelServiceTest {
         solarPanel.setColumn(1);
         solarPanel.setYearInstalled(Year.now().plusYears(1).getValue());
         solarPanel.setMaterial(Material.POLY_SI);
+        solarPanel.setUserId(1);
 
         // Act
-        SolarPanelResult result = service.create(solarPanel);
+        Result<SolarPanel> result = service.create(solarPanel);
 
         // Assert
         assertFalse(result.isSuccess());
         assertEquals(1, result.getErrorMessages().size());
         assertTrue(result.getErrorMessages().get(0).contains("`yearInstalled`"));
     }
+
+    @Test
+    void shouldNotCreateInvalidUserId() throws DataAccessException {
+        // Arrange
+        SolarPanel solarPanel = new SolarPanel();
+        solarPanel.setSection("Section One");
+        solarPanel.setRow(1);
+        solarPanel.setColumn(1);
+        solarPanel.setYearInstalled(Year.now().getValue());
+        solarPanel.setMaterial(Material.POLY_SI);
+        solarPanel.setUserId(0);
+
+        // Act
+        Result<SolarPanel> result = service.create(solarPanel);
+
+        // Assert
+        assertFalse(result.isSuccess());
+        assertEquals(1, result.getErrorMessages().size());
+        assertTrue(result.getErrorMessages().get(0).contains("`userId`"));
+    }
+
 
     @Test
     void shouldNotCreateNonUniqueSectionRowColumn() throws DataAccessException {
@@ -216,12 +245,13 @@ class SolarPanelServiceTest {
         solarPanel.setColumn(1);
         solarPanel.setYearInstalled(2000);
         solarPanel.setMaterial(Material.POLY_SI);
+        solarPanel.setUserId(1);
 
         when(repository.findBySection("Section One")).thenReturn(List.of(
-                new SolarPanel(1, "Section One", 1, 1, 1999, Material.CIGS, true)
+                new SolarPanel(1, "Section One", 1, 1, 1999, Material.CIGS, true, 1)
         ));
 
-        SolarPanelResult result = service.create(solarPanel);
+        Result<SolarPanel> result = service.create(solarPanel);
 
         assertFalse(result.isSuccess());
         assertEquals(1, result.getErrorMessages().size());
@@ -231,9 +261,9 @@ class SolarPanelServiceTest {
     @Test
     void shouldNotCreatePositiveId() throws DataAccessException {
         SolarPanel solarPanel = new SolarPanel(1, "Section One", 1, 1, 2020,
-                Material.POLY_SI, true);
+                Material.POLY_SI, true, 1);
 
-        SolarPanelResult result = service.create(solarPanel);
+        Result<SolarPanel> result = service.create(solarPanel);
 
         assertFalse(result.isSuccess());
         assertEquals(1, result.getErrorMessages().size());
@@ -248,24 +278,36 @@ class SolarPanelServiceTest {
         solarPanel.setColumn(3);
         solarPanel.setYearInstalled(2000);
         solarPanel.setMaterial(Material.POLY_SI);
+        solarPanel.setUserId(1);
 
         when(repository.create(solarPanel)).thenReturn(solarPanel);
 
-        SolarPanelResult result = service.create(solarPanel);
+        Result<SolarPanel> result = service.create(solarPanel);
 
         assertTrue(result.isSuccess());
-        assertNotNull(result.getSolarPanel());
+        assertNotNull(result.getPayload());
     }
 
     @Test
     void shouldNotUpdateEmptySection() throws DataAccessException {
-        SolarPanel solarPanel = new SolarPanel(1, "", 1, 1, 2020, Material.POLY_SI, true);
+        SolarPanel solarPanel = new SolarPanel(1, "", 1, 1, 2020, Material.POLY_SI, true, 1);
 
-        SolarPanelResult result = service.update(solarPanel);
+        Result<SolarPanel> result = service.update(solarPanel);
 
         assertFalse(result.isSuccess());
         assertEquals(1, result.getErrorMessages().size());
         assertTrue(result.getErrorMessages().get(0).contains("`section`"));
+    }
+
+    @Test
+    void shouldNotUpdateInvalidUserId() throws DataAccessException {
+        SolarPanel solarPanel = new SolarPanel(1, "test", 1, 1, 2020, Material.POLY_SI, true, 0);
+
+        Result<SolarPanel> result = service.update(solarPanel);
+
+        assertFalse(result.isSuccess());
+        assertEquals(1, result.getErrorMessages().size());
+        assertTrue(result.getErrorMessages().get(0).contains("`userId`"));
     }
 
     @Test
@@ -276,8 +318,9 @@ class SolarPanelServiceTest {
         solarPanel.setColumn(3);
         solarPanel.setYearInstalled(2000);
         solarPanel.setMaterial(Material.POLY_SI);
+        solarPanel.setUserId(1);
 
-        SolarPanelResult result = service.update(solarPanel);
+        Result<SolarPanel> result = service.update(solarPanel);
 
         assertFalse(result.isSuccess());
         assertEquals(1, result.getErrorMessages().size());
@@ -293,8 +336,9 @@ class SolarPanelServiceTest {
         solarPanel.setColumn(3);
         solarPanel.setYearInstalled(2000);
         solarPanel.setMaterial(Material.POLY_SI);
+        solarPanel.setUserId(1);
 
-        SolarPanelResult result = service.update(solarPanel);
+        Result<SolarPanel> result = service.update(solarPanel);
 
         assertFalse(result.isSuccess());
         assertEquals(1, result.getErrorMessages().size());
@@ -303,18 +347,18 @@ class SolarPanelServiceTest {
 
     @Test
     void shouldUpdate() throws DataAccessException {
-        SolarPanel solarPanel = new SolarPanel(1, "Section One", 1, 1, 2020, Material.A_SI, true);
+        SolarPanel solarPanel = new SolarPanel(1, "Section One", 1, 1, 2020, Material.A_SI, true, 1);
 
         when(repository.update(solarPanel)).thenReturn(true);
 
-        SolarPanelResult result = service.update(solarPanel);
+        Result<SolarPanel> result = service.update(solarPanel);
 
         assertTrue(result.isSuccess());
     }
 
     @Test
     void shouldNotDeleteNonExistentSolarPanel() throws DataAccessException {
-        SolarPanelResult result = service.deleteById(1024);
+        Result<SolarPanel> result = service.deleteById(1024);
 
         assertFalse(result.isSuccess());
         assertEquals(1, result.getErrorMessages().size());
@@ -325,7 +369,7 @@ class SolarPanelServiceTest {
     void shouldDelete() throws DataAccessException {
         when(repository.deleteById(1)).thenReturn(true);
 
-        SolarPanelResult result = service.deleteById(1);
+        Result<SolarPanel> result = service.deleteById(1);
 
         assertTrue(result.isSuccess());
     }

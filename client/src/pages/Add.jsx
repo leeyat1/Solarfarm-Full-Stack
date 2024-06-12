@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import Errors from "../components/Errors"
 import SolarPanelForm from "../components/SolarPanelForm"
 
-const Add = () => {
+const Add = ({ user }) => {
     const navigate = useNavigate()
 
     // const params = useParams()
@@ -19,6 +19,7 @@ const Add = () => {
             headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json",
+                Authorization: user.id
             },
             body: JSON.stringify(solarPanel)
         })

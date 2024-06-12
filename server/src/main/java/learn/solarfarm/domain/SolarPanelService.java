@@ -34,8 +34,12 @@ public class SolarPanelService {
         return repository.findById(id);
     }
 
-    public SolarPanelResult create(SolarPanel solarPanel) throws DataAccessException {
-        SolarPanelResult result = validate(solarPanel);
+    public List<SolarPanel> findByUserId(int userId) throws DataAccessException {
+        return repository.findByUserId(userId);
+    }
+
+    public Result<SolarPanel> create(SolarPanel solarPanel) throws DataAccessException {
+        Result<SolarPanel> result = validate(solarPanel);
 
         if (solarPanel != null && solarPanel.getId() > 0) {
             result.addErrorMessage("SolarPanel `id` should not be set.", ResultType.INVALID);
@@ -43,14 +47,14 @@ public class SolarPanelService {
 
         if (result.isSuccess()) {
             solarPanel = repository.create(solarPanel);
-            result.setSolarPanel(solarPanel);
+            result.setPayload(solarPanel);
         }
 
         return result;
     }
 
-    public SolarPanelResult update(SolarPanel solarPanel) throws DataAccessException {
-        SolarPanelResult result = validate(solarPanel);
+    public Result<SolarPanel> update(SolarPanel solarPanel) throws DataAccessException {
+        Result<SolarPanel> result = validate(solarPanel);
 
         if (solarPanel.getId() <= 0) {
             result.addErrorMessage("SolarPanel `id` is required.", ResultType.INVALID);
@@ -58,7 +62,7 @@ public class SolarPanelService {
 
         if (result.isSuccess()) {
             if (repository.update(solarPanel)) {
-                result.setSolarPanel(solarPanel);
+                result.setPayload(solarPanel);
             } else {
                 result.addErrorMessage("SolarPanel id %s was not found.", ResultType.NOT_FOUND, solarPanel.getId());
             }
@@ -66,16 +70,16 @@ public class SolarPanelService {
         return result;
     }
 
-    public SolarPanelResult deleteById(int id) throws DataAccessException {
-        SolarPanelResult result = new SolarPanelResult();
+    public Result<SolarPanel> deleteById(int id) throws DataAccessException {
+        Result<SolarPanel> result = new Result<>();
         if (!repository.deleteById(id)) {
             result.addErrorMessage("SolarPanel id %s was not found.", ResultType.NOT_FOUND, id);
         }
         return result;
     }
 
-    private SolarPanelResult validate(SolarPanel solarPanel) throws DataAccessException {
-        SolarPanelResult result = new SolarPanelResult();
+    private Result<SolarPanel> validate(SolarPanel solarPanel) throws DataAccessException {
+        Result<SolarPanel> result = new Result<>();
 
         if (solarPanel == null) {
             result.addErrorMessage("SolarPanel cannot be null.", ResultType.INVALID);
@@ -103,6 +107,15 @@ public class SolarPanelService {
         if (solarPanel.getMaterial() == null) {
             result.addErrorMessage("SolarPanel `material` is required.", ResultType.INVALID);
         }
+
+        if (solarPanel.getUserId() <= 0) {
+            result.addErrorMessage("SolarPanel `userId` is required.", ResultType.INVALID);
+        }
+
+        // TODO: should check if user exists with that userId
+        // add findById to userRepo
+        // add userRepo as dependency of solarPanelService
+        // mock userRepo in solarPanelService tests
 
         // If everything is successful so far, then check if the combined values
         // of **Section**, **Row**, and **Column** are unique (i.e. the natural key).
