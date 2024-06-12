@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { jwtDecode } from "jwt-decode"
 
 import Errors from "../components/Errors"
 
@@ -23,8 +24,11 @@ const Signup = ({ setUser }) => {
         .then(response => {
             if (response.status === 201) {
                 response.json().then(json => {
-                    setUser(json);
-                    localStorage.setItem('user', JSON.stringify(json));
+                    const userObject = jwtDecode(json.jwt)
+                    userObject.jwt = json.jwt
+                    setUser(userObject);
+                    // Save user data to local storage
+                    localStorage.setItem('user', JSON.stringify(userObject));
                     navigate("/");
                 });
             } else if (response.status === 400) {

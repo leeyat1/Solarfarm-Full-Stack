@@ -2,6 +2,7 @@
     - db: users table w/ just username
     - backend: user model, repo, repo test, service, service test, controller, controller test; all only need create method
     - frontend: signup form, nav link to signup form
+    - TODO: make users unique
 - login:
     - db: add password to users table
     - backend: repo needs findByUsername, service needs findByUsername, controller needs POST /login (returns user or 403)
@@ -39,3 +40,46 @@
     - must be logged out: Log In, Sign Up
     - either: All Panels, Home
 - save user into localStorage & reload
+
+### ENHANCED SECURITY
+- jwt instead of raw user:
+    - backend:
+        - new dependencies:
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        - POST /login returns jwt of user instead of transparent user with:
+         Jwts.builder()
+                .claim("username", user.getUsername())
+                .claim("id", user.getId())
+                .signWith(Keys.secretKeyFor(SignatureAlgorithm.HS256))
+                .compact();
+            - confirm from rest client
+    - frontend:
+        - after successful POST /login, decode user jwt with jwt-decode; save jwt in state as part of user obj
+        - show that base64 encoding is transparent with base64encode.org, it's the signature that guarantees security
+        - in all authenticated requests to the backend, use user.jwt instead of user.userId
+    - backend:
+        - in all solar panel authenticated routes, decode the jwt with
+        Jws<Claims> parsedJwt = Jwts.parserBuilder()
+                .setSigningKey(secretSigningKey.getKey())
+                .build().parseClaimsJws(jwt);
+        Integer integerUserId = (Integer) parsedJwt.getBody().get("id");
+            - this requires moving the Keys.secretKeyFor(SignatureAlgorithm.HS256) into a class that both these controllers can depend on, consider making it a static field just to be safe
+            - confirm with rest client

@@ -1,19 +1,24 @@
 import { useEffect, useState } from "react";
 import SolarPanelTable from "../components/SolarPanelTable";
 
-const MyPanels = ({ user }) => {
+const MyPanels = ({ user, setUser }) => {
 	const [solarPanels, setSolarPanels] = useState([])
 
 	useEffect(() => {
 		fetch("http://localhost:8080/api/solarpanel/personal", {
             headers: {
-                Authorization: user.id
+                Authorization: user.jwt
             }
         })
-		.then(response => response.json())
-		.then(json => {
-			setSolarPanels(json)
-		})
+		.then(response => {
+            if (response.status === 403) {
+                setUser(null)
+                localStorage.removeItem("user")
+            } else if (response.status === 200) {
+                response.json()
+                .then(json => setSolarPanels(json))
+            }
+        })
 	}, [])
 
     if (solarPanels.length === 0) {
