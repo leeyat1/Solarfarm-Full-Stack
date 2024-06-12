@@ -3,7 +3,7 @@ import NavBar from './components/NavBar';
 import SolarPanelForm from './components/SolarPanelForm';
 import SolarPanelTable from './components/SolarPanelTable';
 import logo from './assets/logo.png';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home'
 import Contact from './pages/Contact'
 import ConfirmDelete from './pages/ConfirmDelete';
@@ -19,7 +19,7 @@ function App() {
 	const initialUser = JSON.parse(localStorage.getItem('user'));
 	const [user, setUser] = useState(initialUser)
 	
-	const navigateHome = <navigateFromProtectedRoute to="/" />
+	const navigateFromProtectedRoute = <Navigate to="/login" />
 	
 
 	return (
@@ -40,13 +40,27 @@ function App() {
 					{ user !== null ? <h2>Welcome, {user.username}!</h2> : null }
 					<Routes>
 						<Route path="/" element={<Home />} />
+
 						<Route path="/contact" element={<Contact />} />
-						<Route path="/allPanels" element={<AllPanels user={user} />} />
-						<Route path="/personal" element={<MyPanels user={user} />} />
-						<Route path="/add" element={<Add user={user} />} />
-						<Route path="/edit/:id" element={<Edit user={user} />} />				
-						<Route path="/delete/:id" element={<ConfirmDelete user={user} />} />
+
+						<Route path="/allPanels" element={
+							user ? <AllPanels user={user} /> :  navigateFromProtectedRoute} />
+
+						<Route path="/personal" element={
+							user ? <MyPanels user={user} /> :  navigateFromProtectedRoute} />
+
+						<Route path="/add" element={
+							user ? <Add user={user} /> :  navigateFromProtectedRoute} />
+
+						<Route path="/edit/:id" element={
+							
+							user ? <Edit user={user} /> :  navigateFromProtectedRoute} />
+
+						<Route path="/delete/:id" element={ 
+							user ? <ConfirmDelete user={user} /> : navigateFromProtectedRoute} />
+
 						<Route path="/signup" element={<Signup setUser={setUser}/>} />
+
 						<Route path="/login" element={<Login setUser={setUser} />} />
 						<Route path="*" element={<div>Page not found, 404</div>} />
 					</Routes>
