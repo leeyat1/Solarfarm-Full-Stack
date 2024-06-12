@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import NavBar from './components/NavBar';
 import SolarPanelForm from './components/SolarPanelForm';
 import SolarPanelTable from './components/SolarPanelTable';
@@ -15,7 +15,11 @@ import Login from './pages/Login';
 import MyPanels from './pages/MyPanels';
 
 function App() {
-	const [user, setUser] = useState(null)
+
+	const initialUser = JSON.parse(localStorage.getItem('user'));
+	const [user, setUser] = useState(initialUser)
+	
+	
 
 	return (
 		<BrowserRouter>

@@ -2,9 +2,17 @@ import { Link } from "react-router-dom"
 
 import NavLink from "./NavLink"
 
+
+
 const NavBar = ({ setUser, user }) => {
+
+    const handleLogout = () => {
+        setUser(null);
+        localStorage.removeItem('user');
+    };
+
     const logOutLink = <li className='nav-item'>
-        <span className='nav-link' onClick={() => setUser(null)}>
+        <span className='nav-link' onClick={handleLogout}>
             Log Out
         </span>
     </li>
