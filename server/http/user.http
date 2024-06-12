@@ -1,0 +1,48 @@
+@base_url = http://localhost:8080/api/user
+
+POST {{base_url}}
+Content-Type: application/json
+
+{
+    "username": "test@test.com",
+    "password": "password"
+}
+
+###
+
+POST {{base_url}}
+Content-Type: application/json
+
+{
+    "username": ""
+}
+
+###
+
+POST {{base_url}}/login
+Content-Type: application/json
+
+{
+    "username": "test@test.com",
+    "password": "password"
+}
+
+###
+
+POST {{base_url}}/login
+Content-Type: application/json
+
+{
+    "username": "fake@fake.com",
+    "password": "password"
+}
+
+###
+
+POST {{base_url}}/login
+Content-Type: application/json
+
+{
+    "username": "test@test.com",
+    "password": "fake-password"
+}
