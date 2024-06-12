@@ -3,15 +3,15 @@ import { useNavigate } from "react-router-dom"
 
 import Errors from "../components/Errors"
 
-const Signup = () => {
-    const [username, setUsername] = useState("")
-    const [password, setPassword] = useState("")
-    const [errors, setErrors] = useState([])
+const Signup = ({ setUser }) => {
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [errors, setErrors] = useState([]);
 
-    const navigate = useNavigate()
-    
+    const navigate = useNavigate();
+
     const handleSubmit = (event) => {
-        event.preventDefault()
+        event.preventDefault();
         fetch("http://localhost:8080/api/user", {
             method: "POST",
             headers: {
@@ -22,18 +22,21 @@ const Signup = () => {
         })
         .then(response => {
             if (response.status === 201) {
-                navigate("/")
+                response.json().then(json => {
+                    setUser(json);
+                    localStorage.setItem('user', JSON.stringify(json));
+                    navigate("/");
+                });
             } else if (response.status === 400) {
-                response.json()
-                .then(json => setErrors(json))
+                response.json().then(json => setErrors(json.errors || [json.message]));
             } else {
-                return Promise.reject()
+                return Promise.reject();
             }
         })
         .catch(error => {
-            setErrors(["Something went wrong"])
-        })
-    }
+            setErrors(["Something went wrong"]);
+        });
+    };
 
     return (
         <div>

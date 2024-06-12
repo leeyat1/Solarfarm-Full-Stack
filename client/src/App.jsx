@@ -19,6 +19,7 @@ function App() {
 	const initialUser = JSON.parse(localStorage.getItem('user'));
 	const [user, setUser] = useState(initialUser)
 	
+	const navigateHome = <navigateFromProtectedRoute to="/" />
 	
 
 	return (
@@ -45,7 +46,7 @@ function App() {
 						<Route path="/add" element={<Add user={user} />} />
 						<Route path="/edit/:id" element={<Edit user={user} />} />				
 						<Route path="/delete/:id" element={<ConfirmDelete user={user} />} />
-						<Route path="/signup" element={<Signup />} />
+						<Route path="/signup" element={<Signup setUser={setUser}/>} />
 						<Route path="/login" element={<Login setUser={setUser} />} />
 						<Route path="*" element={<div>Page not found, 404</div>} />
 					</Routes>
