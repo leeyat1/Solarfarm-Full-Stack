@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 
-const ConfirmDelete = ({ user }) => {
+const ConfirmDelete = ({ user, setUser }) => {
     const params = useParams()
     const id = params.id
 
@@ -19,12 +19,15 @@ const ConfirmDelete = ({ user }) => {
         fetch(`http://localhost:8080/api/solarpanel/${id}`, {
             method: "DELETE",
             headers: {
-                Authorization: user.id
+                Authorization: user.jwt
             }
         })
         .then(response => {
             if (response.status === 204) {
                 navigate("/allPanels")
+            } else if (response.status === 403) {
+                setUser(null)
+                localStorage.removeItem("user")
             } else if (response.status === 404) {
                 navigate("/allPanels")
             } else {

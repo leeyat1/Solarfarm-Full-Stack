@@ -1,5 +1,12 @@
 package learn.solarfarm.controllers;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
+import learn.solarfarm.SecretSigningKey;
 import learn.solarfarm.data.DataAccessException;
 import learn.solarfarm.domain.ResultType;
 import learn.solarfarm.domain.Result;
@@ -18,8 +25,11 @@ import java.util.List;
 public class SolarPanelController {
     private final SolarPanelService service;
 
-    public SolarPanelController(SolarPanelService service) {
+    private final SecretSigningKey secretSigningKey;
+
+    public SolarPanelController(SolarPanelService service, SecretSigningKey secretSigningKey) {
         this.service = service;
+        this.secretSigningKey = secretSigningKey;
     }
 
     @GetMapping
@@ -53,22 +63,24 @@ public class SolarPanelController {
 
     @GetMapping("/personal")
     public ResponseEntity<?> findByUserId(@RequestHeader HashMap<String, String> headers) throws DataAccessException {
-        if (headers.get("authorization") == null) {
-            return new ResponseEntity<>(List.of("You must be logged in"), HttpStatus.FORBIDDEN);
+        Integer userId = getUserIdFromHeaders(headers);
+
+        if (userId == null) {
+            return new ResponseEntity<>(List.of("Authentication failed"), HttpStatus.FORBIDDEN);
         }
 
-        int userId = Integer.parseInt(headers.get("authorization"));
         List<SolarPanel> result = service.findByUserId(userId);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<?> create(@RequestBody SolarPanel solarPanel, @RequestHeader HashMap<String, String> headers) throws Exception {
-        if (headers.get("authorization") == null) {
-            return new ResponseEntity<>(List.of("You must be logged in"), HttpStatus.FORBIDDEN);
+        Integer userId = getUserIdFromHeaders(headers);
+
+        if (userId == null) {
+            return new ResponseEntity<>(List.of("Authentication failed"), HttpStatus.FORBIDDEN);
         }
 
-        int userId = Integer.parseInt(headers.get("authorization"));
         solarPanel.setUserId(userId);
         Result<SolarPanel> result = service.create(solarPanel);
         if (!result.isSuccess()) {
@@ -79,15 +91,16 @@ public class SolarPanelController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable int id, @RequestBody SolarPanel solarPanel, @RequestHeader HashMap<String, String> headers) throws DataAccessException {
-        if (headers.get("authorization") == null) {
-            return new ResponseEntity<>(List.of("You must be logged in"), HttpStatus.FORBIDDEN);
-        }
-
         if (id != solarPanel.getId()) {
             return new ResponseEntity<>(HttpStatus.CONFLICT); // 409
         }
 
-        int userId = Integer.parseInt(headers.get("authorization"));
+        Integer userId = getUserIdFromHeaders(headers);
+
+        if (userId == null) {
+            return new ResponseEntity<>(List.of("Authentication failed"), HttpStatus.FORBIDDEN);
+        }
+
         SolarPanel existingSolarPanel = service.findById(id);
         if (existingSolarPanel == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -107,11 +120,12 @@ public class SolarPanelController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable int id, @RequestHeader HashMap<String, String> headers) throws DataAccessException {
-        if (headers.get("authorization") == null) {
-            return new ResponseEntity<>(List.of("You must be logged in"), HttpStatus.FORBIDDEN);
+        Integer userId = getUserIdFromHeaders(headers);
+
+        if (userId == null) {
+            return new ResponseEntity<>(List.of("Authentication failed"), HttpStatus.FORBIDDEN);
         }
 
-        int userId = Integer.parseInt(headers.get("authorization"));
         SolarPanel existingSolarPanel = service.findById(id);
         if (existingSolarPanel == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -123,5 +137,23 @@ public class SolarPanelController {
 
         service.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 204
+    }
+
+    private Integer getUserIdFromHeaders(HashMap<String, String> headers) {
+        if (headers.get("authorization") == null) {
+            return null;
+        }
+
+        Integer userId;
+        try {
+            Jws<Claims> parsedJwt = Jwts.parserBuilder()
+                    .setSigningKey(secretSigningKey.getKey())
+                    .build().parseClaimsJws(headers.get("authorization"));
+            userId = (Integer) parsedJwt.getBody().get("id");
+        } catch (SignatureException ex) {
+            return null;
+        }
+
+        return userId;
     }
 }

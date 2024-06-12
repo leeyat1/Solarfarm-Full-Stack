@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import Errors from "../components/Errors"
 import SolarPanelForm from "../components/SolarPanelForm"
 
-const Add = ({ user }) => {
+const Add = ({ user, setUser }) => {
     const navigate = useNavigate()
 
     // const params = useParams()
@@ -19,7 +19,7 @@ const Add = ({ user }) => {
             headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json",
-                Authorization: user.id
+                Authorization: user.jwt
             },
             body: JSON.stringify(solarPanel)
         })
@@ -32,6 +32,9 @@ const Add = ({ user }) => {
                 .then(json => {
                     setErrors(json)
                 })
+            } else if (response.status === 403) {
+                setUser(null)
+                localStorage.removeItem("user")
             } else {
                 return Promise.reject();
             }

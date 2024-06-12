@@ -1,4 +1,3 @@
-
 package learn.solarfarm;
 
 import io.jsonwebtoken.SignatureAlgorithm;
